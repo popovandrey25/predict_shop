@@ -9,3 +9,12 @@ class UserRequestAdd(BaseModel):
 class UserAdd(BaseModel):
     email: EmailStr
     hashed_password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+
+
+class UserWithHashedPassword(UserResponse):
+    hashed_password: str
