@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Query
+from pydantic import BaseModel
 from starlette.requests import Request
 
 from services.auth import AuthService
@@ -28,3 +29,11 @@ def get_current_user_id(token: str = Depends(get_token)) -> int:
 
 
 UserIdDep = Annotated[int, Depends(get_current_user_id)]
+
+
+class PaginationParams(BaseModel):
+    page: Annotated[int | None, Query(1, ge=1)]
+    per_page: Annotated[int | None, Query(10, ge=1, lt=30)]
+
+
+PaginationDep = Annotated[PaginationParams, Depends()]
