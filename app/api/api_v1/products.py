@@ -17,7 +17,7 @@ async def create_product(
     db: DBDep,
 ):
     product = await db.products.add(product)
-    await db.session.commit()
+    await db.commit()
     return product
 
 
@@ -55,3 +55,16 @@ async def update_product(
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
+
+
+@router.delete("/{product_id}", response_model=dict)
+async def delete_product(
+    product_id: int,
+    db: DBDep,
+):
+    product = await db.products.get_one_or_none(id=product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    await db.products.delete(id=product_id)
+    await db.commit()
+    return {"status": "deleted"}
