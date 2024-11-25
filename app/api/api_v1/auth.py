@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Response, Depends
+from fastapi import APIRouter, HTTPException, Response
+from sqlalchemy.exc import IntegrityError
 
 from api.api_v1.dependencies import DBDep, UserIdDep
 from schemas.user import UserRequestAdd, UserAdd
@@ -16,8 +17,19 @@ router = APIRouter(
 async def register_user(data: UserRequestAdd, db: DBDep):
     hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
-    await db.users.add(new_user_data)
-    await db.commit()
+    try:
+        await db.users.add(new_user_data)
+        await db.commit()
+    except IntegrityError as e:
+        if 'email' in str(e.orig):
+            raise HTTPException(
+                status_code=409,
+                detail="A user with this email already exists."
+            )
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred."
+        )
 
     return {"status": "OK"}
 
