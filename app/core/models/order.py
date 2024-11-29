@@ -12,6 +12,7 @@ class Order(Base):
     created_at: Mapped[datetime] = mapped_column(nullable=False)
     order_items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
+
 class OrderItem(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
