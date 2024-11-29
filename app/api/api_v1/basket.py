@@ -14,8 +14,7 @@ async def get_basket(
     user_id: UserIdDep,
     db: DBDep
 ):
-    basket = await db.baskets.get_user_basket(user_id)
-    return basket
+    return await db.baskets.get_user_basket(user_id)
 
 
 @router.post("/add", response_model=BasketDetailResponse)
