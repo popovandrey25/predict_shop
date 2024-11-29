@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
-from core.models import Base
+from core.models import Base, Product
 
 
 class Basket(Base):
@@ -18,3 +18,4 @@ class BasketItem(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     basket: Mapped[Basket] = relationship("Basket", back_populates="items")
+    product: Mapped[Product] = relationship("Product", back_populates="basket_items")
