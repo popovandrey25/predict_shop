@@ -26,5 +26,5 @@ class AuthService:
     def decode_token(self, token: str) -> dict:
         try:
             return jwt.decode(token, settings.auth.jwt_secret_key, algorithms=[settings.auth.jwt_algorithm])
-        except jwt.exceptions.DecodeError:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError):
             raise HTTPException(status_code=401, detail="Неверный токен")
