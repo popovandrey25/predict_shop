@@ -10,6 +10,7 @@ class Basket(Base):
         "BasketItem",
         back_populates="basket",
         cascade="all, delete-orphan",
+        lazy="joined"
     )
 
 class BasketItem(Base):

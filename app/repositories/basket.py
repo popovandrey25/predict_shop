@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
-from core.models import Basket, BasketItem, Product
+from core.models import Basket, BasketItem, Product, Order, OrderItem
 from repositories.base import BaseRepository
 from schemas.basket import BasketDetailResponse, BasketItemResponse
 
@@ -119,3 +121,57 @@ class BasketRepository(BaseRepository):
             for item in basket.items
         ]
         return self.schema(id=basket.id, user_id=basket.user_id, items=basket_items)
+
+
+    async def _get_order(self, order_id):
+        result = await self.session.execute(
+            select(Order).options(joinedload(Order.order_items)).filter_by(id=order_id)
+        )
+        order = result.scalars().first()
+        return order
+
+
+    async def create_order(self, user_id: int):
+        basket = await self._get_basket(user_id)
+
+        if not basket.items:
+            raise HTTPException(status_code=400, detail="Basket is empty")
+
+        total_amount = sum(item.quantity * item.product.price for item in basket.items)
+
+        order = Order(
+            user_id=user_id,
+            total_amount=total_amount,
+            created_at=datetime.utcnow(),
+            order_items=[
+                OrderItem(
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+                for item in basket.items
+            ]
+        )
+        self.session.add(order)
+
+        await self.session.delete(basket)
+
+        await self.session.commit()
+        await self.session.refresh(order)
+
+        order = await self._get_order(order_id=order.id)
+
+        return {
+            "order_id": order.id,
+            "user_id": order.user_id,
+            "total_amount": order.total_amount,
+            "created_at": order.created_at,
+            "items": [
+                {
+                    "product_id": item.product_id,
+                    "quantity": item.quantity,
+                    "price": item.price
+                }
+                for item in order.order_items
+            ]
+        }
