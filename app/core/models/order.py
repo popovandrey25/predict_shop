@@ -10,7 +10,9 @@ class Order(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     total_amount: Mapped[float] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
-    order_items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    order_items: Mapped[list["OrderItem"]] = relationship(
+        "OrderItem", back_populates="order", lazy="joined", cascade="all, delete-orphan"
+    )
 
 
 class OrderItem(Base):
