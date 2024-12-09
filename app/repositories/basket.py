@@ -162,7 +162,7 @@ class BasketRepository(BaseRepository):
         order = await self._get_order(order_id=order.id)
 
         return {
-            "order_id": order.id,
+            "id": order.id,
             "user_id": order.user_id,
             "total_amount": order.total_amount,
             "created_at": order.created_at,

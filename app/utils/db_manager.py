@@ -1,4 +1,5 @@
 from repositories.basket import BasketRepository
+from repositories.order import OrderRepository
 from repositories.product import ProductRepository
 from repositories.user import UserRepository
 
@@ -13,6 +14,7 @@ class DBManager:
         self.users = UserRepository(self.session)
         self.products = ProductRepository(self.session)
         self.baskets = BasketRepository(self.session)
+        self.orders = OrderRepository(self.session)
 
         return self
 
