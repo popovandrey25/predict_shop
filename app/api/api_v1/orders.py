@@ -15,3 +15,11 @@ async def create_order(
     db: DBDep
 ):
     return await db.baskets.create_order(user_id)
+
+
+@router.get("")
+async def get_orders(
+    user_id: UserIdDep,
+    db: DBDep
+):
+    return await db.orders.get_all_orders(user_id)
