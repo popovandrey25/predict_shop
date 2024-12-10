@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -33,4 +34,27 @@ class OrderRepository(BaseRepository):
             }
             for order in orders
         ]
+        return response
+
+    async def get_order(self, user_id, order_id):
+        result = await self.session.execute(
+            select(Order).options(joinedload(Order.order_items)).filter_by(user_id=user_id, id=order_id)
+        )
+        order = result.unique().scalars().one_or_none()
+        if order is None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        response = {
+            "id": order.id,
+            "user_id": order.user_id,
+            "total_amount": order.total_amount,
+            "created_at": order.created_at.isoformat(),
+            "items": [
+                {
+                    "product_id": item.product_id,
+                    "quantity": item.quantity,
+                    "price": item.price
+                }
+                for item in order.order_items
+            ]
+        }
         return response

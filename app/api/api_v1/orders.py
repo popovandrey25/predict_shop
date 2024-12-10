@@ -23,3 +23,12 @@ async def get_orders(
     db: DBDep
 ):
     return await db.orders.get_all_orders(user_id)
+
+
+@router.get("/{order_id}")
+async def get_order(
+    user_id: UserIdDep,
+    order_id: int,
+    db: DBDep
+):
+    return await db.orders.get_order(user_id, order_id)
